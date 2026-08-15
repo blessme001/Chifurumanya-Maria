@@ -1,0 +1,480 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Mail, Phone, MapPin, Download, ArrowUpRight, CheckCircle2,
+  Globe2, GraduationCap, Languages, BadgeCheck, ChevronDown, Menu, X
+} from "lucide-react";
+
+/* ---------------------------------------------------------
+   TOKENS
+   paper  #F3EDDD   ink    #1E2A38   stamp  #A8362A
+   brass  #9C7A3C   char   #2B2620   line   #D8CDAE
+--------------------------------------------------------- */
+
+const FONTS = `
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+`;
+
+function useReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setVisible(true)),
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+function Reveal({ children, delay = 0, className = "" }) {
+  const [ref, visible] = useReveal();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(28px)",
+        transition: `opacity .7s ease ${delay}ms, transform .7s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   PHOTO — user will host as ./maria.jpg on GitHub Pages
+--------------------------------------------------------- */
+function Photo() {
+  const [err, setErr] = useState(false);
+  return (
+    <div className="relative w-[240px] h-[300px] sm:w-[280px] sm:h-[340px] shrink-0">
+      <div
+        className="absolute inset-0 border-2 rotate-[-2deg]"
+        style={{ borderColor: "#9C7A3C55" }}
+      />
+      <div
+        className="relative w-full h-full overflow-hidden shadow-xl"
+        style={{ background: "#1E2A38" }}
+      >
+        {!err ? (
+          <img
+            src="./maria.jpg"
+            alt="Duru-Aloy Chifurumanya Maria"
+            className="w-full h-full object-cover"
+            onError={() => setErr(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-center px-6">
+            <Globe2 size={32} color="#9C7A3C" />
+            <p className="text-xs" style={{ color: "#F3EDDD99", fontFamily: "IBM Plex Mono" }}>
+              add photo as<br />maria.jpg
+            </p>
+          </div>
+        )}
+      </div>
+      {/* stamp badge */}
+      <div
+        className="absolute -bottom-5 -right-5 w-24 h-24 rounded-full flex items-center justify-center text-center border-2 rotate-[-8deg] bg-[#F3EDDD]"
+        style={{ borderColor: "#A8362A", color: "#A8362A" }}
+      >
+        <span style={{ fontFamily: "IBM Plex Mono", fontSize: "9px", lineHeight: 1.3, letterSpacing: "0.06em" }}>
+          CLEARED<br />FOR<br />BUSINESS
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   STAMP INTRO ANIMATION (hero signature moment)
+--------------------------------------------------------- */
+function HeroStamp() {
+  const [stamped, setStamped] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setStamped(true), 550);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div
+      className="inline-flex items-center gap-2 px-3 py-1 border rounded-full"
+      style={{
+        borderColor: "#A8362A",
+        color: "#A8362A",
+        fontFamily: "IBM Plex Mono",
+        fontSize: "11px",
+        letterSpacing: "0.15em",
+        transform: stamped ? "scale(1) rotate(-2deg)" : "scale(2.4) rotate(-14deg)",
+        opacity: stamped ? 1 : 0,
+        transition: "transform .5s cubic-bezier(.2,.9,.3,1.2), opacity .3s ease",
+      }}
+    >
+      <CheckCircle2 size={13} /> AVAILABLE FOR HIRE
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   NAV
+--------------------------------------------------------- */
+function Nav() {
+  const [open, setOpen] = useState(false);
+  const links = ["About", "Ledger", "Experience", "Education", "Contact"];
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: "#F3EDDDee", backdropFilter: "blur(8px)", borderBottom: "1px solid #D8CDAE" }}>
+      <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
+        <span style={{ fontFamily: "Fraunces", fontWeight: 500, color: "#1E2A38", fontSize: "18px" }}>
+          M. Duru-Aloy
+        </span>
+        <div className="hidden md:flex items-center gap-8">
+          {links.map((l) => (
+            <a
+              key={l}
+              href={`#${l.toLowerCase()}`}
+              style={{ fontFamily: "IBM Plex Mono", fontSize: "11px", letterSpacing: "0.08em", color: "#2B2620" }}
+              className="hover:opacity-60 transition-opacity uppercase"
+            >
+              {l}
+            </a>
+          ))}
+          <a
+            href="mailto:chifurumnaya20@gmail.com"
+            className="px-4 py-2 text-white"
+            style={{ background: "#1E2A38", fontFamily: "IBM Plex Mono", fontSize: "11px", letterSpacing: "0.08em" }}
+          >
+            HIRE ME
+          </a>
+        </div>
+        <button className="md:hidden" onClick={() => setOpen(!open)} style={{ color: "#1E2A38" }}>
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+      {open && (
+        <div className="md:hidden px-6 pb-4 flex flex-col gap-3" style={{ borderTop: "1px solid #D8CDAE" }}>
+          {links.map((l) => (
+            <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setOpen(false)} style={{ fontFamily: "IBM Plex Mono", fontSize: "12px", color: "#2B2620" }}>
+              {l}
+            </a>
+          ))}
+        </div>
+      )}
+    </nav>
+  );
+}
+
+/* ---------------------------------------------------------
+   MANIFEST LOG ENTRY (experience timeline)
+--------------------------------------------------------- */
+function LogEntry({ num, period, role, org, bullets, last }) {
+  const [ref, visible] = useReveal();
+  return (
+    <div ref={ref} className="relative pl-16 pb-12">
+      {!last && (
+        <div
+          className="absolute left-[22px] top-8 bottom-0 w-px"
+          style={{
+            backgroundImage: "linear-gradient(#9C7A3C 40%, transparent 0%)",
+            backgroundSize: "1px 8px",
+          }}
+        />
+      )}
+      <div
+        className="absolute left-0 top-0 w-11 h-11 rounded-full flex items-center justify-center border-2"
+        style={{
+          borderColor: "#9C7A3C",
+          color: "#1E2A38",
+          background: "#F3EDDD",
+          fontFamily: "IBM Plex Mono",
+          fontSize: "12px",
+          transform: visible ? "scale(1)" : "scale(0)",
+          transition: "transform .5s cubic-bezier(.34,1.56,.64,1)",
+        }}
+      >
+        {num}
+      </div>
+      <div
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateX(0)" : "translateX(20px)",
+          transition: "opacity .6s ease .1s, transform .6s ease .1s",
+        }}
+      >
+        <div style={{ fontFamily: "IBM Plex Mono", fontSize: "11px", color: "#A8362A", letterSpacing: "0.08em" }}>
+          {period}
+        </div>
+        <h3 style={{ fontFamily: "Fraunces", fontSize: "22px", color: "#1E2A38", marginTop: "4px" }}>
+          {role}
+        </h3>
+        <div style={{ fontFamily: "Inter", fontSize: "13px", color: "#9C7A3C", marginTop: "2px", fontWeight: 500 }}>
+          {org}
+        </div>
+        <ul className="mt-3 space-y-2">
+          {bullets.map((b, i) => (
+            <li key={i} className="flex gap-2 text-sm" style={{ color: "#2B2620cc", fontFamily: "Inter", lineHeight: 1.6 }}>
+              <span style={{ color: "#9C7A3C", flexShrink: 0 }}>—</span>
+              {b}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   MAIN
+--------------------------------------------------------- */
+export default function Portfolio() {
+  return (
+    <div style={{ background: "#F3EDDD", minHeight: "100vh", fontFamily: "Inter" }}>
+      <style>{FONTS}{`
+        html { scroll-behavior: smooth; }
+        ::selection { background: #A8362A33; }
+      `}</style>
+
+      <Nav />
+
+      {/* HERO */}
+      <section id="about" className="pt-32 pb-20 px-6 max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center md:items-start">
+          <div className="flex-1 order-2 md:order-1">
+            <HeroStamp />
+            <h1
+              style={{ fontFamily: "Fraunces", fontWeight: 400, color: "#1E2A38", lineHeight: 1.02 }}
+              className="text-5xl sm:text-6xl mt-6 mb-4"
+            >
+              Duru-Aloy<br />Chifurumanya <em style={{ fontStyle: "italic", color: "#A8362A" }}>Maria</em>
+            </h1>
+            <p style={{ fontFamily: "IBM Plex Mono", fontSize: "13px", color: "#9C7A3C", letterSpacing: "0.05em" }}>
+              EXPORT &amp; DOCUMENTATION OFFICER · SALES · CLIENT RELATIONS
+            </p>
+            <p className="mt-5 max-w-md text-[15px]" style={{ color: "#2B2620cc", lineHeight: 1.8 }}>
+              A psychology graduate who reads people as fluently as she reads a customs form —
+              five-plus years turning paperwork into shipments and conversations into clients.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-8">
+              <a
+                href="mailto:chifurumnaya20@gmail.com"
+                className="flex items-center gap-2 px-5 py-3 text-white text-sm"
+                style={{ background: "#1E2A38", fontFamily: "IBM Plex Mono", fontSize: "12px" }}
+              >
+                <Mail size={14} /> GET IN TOUCH
+              </a>
+              <a
+                href="./Duru-Aloy_Maria_CV.pdf"
+                download
+                className="flex items-center gap-2 px-5 py-3 border text-sm"
+                style={{ borderColor: "#9C7A3C", color: "#1E2A38", fontFamily: "IBM Plex Mono", fontSize: "12px" }}
+              >
+                <Download size={14} /> DOWNLOAD CV
+              </a>
+            </div>
+
+            <div className="flex gap-8 mt-10 pt-8" style={{ borderTop: "1px solid #D8CDAE" }}>
+              {[["5+", "YRS EXPERIENCE"], ["2", "LANGUAGES"], ["NYSC", "CERTIFIED"]].map(([v, l]) => (
+                <div key={l}>
+                  <div style={{ fontFamily: "Fraunces", fontSize: "26px", color: "#A8362A" }}>{v}</div>
+                  <div style={{ fontFamily: "IBM Plex Mono", fontSize: "9px", color: "#2B2620999", letterSpacing: "0.08em" }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="order-1 md:order-2">
+            <Photo />
+          </div>
+        </div>
+        <div className="flex justify-center mt-16 opacity-40">
+          <ChevronDown size={20} style={{ color: "#1E2A38" }} />
+        </div>
+      </section>
+
+      {/* LEDGER / SKILLS */}
+      <section id="ledger" className="py-20 px-6" style={{ background: "#EBE3CC" }}>
+        <div className="max-w-5xl mx-auto">
+          <Reveal>
+            <p style={{ fontFamily: "IBM Plex Mono", fontSize: "11px", color: "#A8362A", letterSpacing: "0.12em" }}>
+              SCHEDULE OF SKILLS
+            </p>
+            <h2 style={{ fontFamily: "Fraunces", fontSize: "34px", color: "#1E2A38" }} className="mt-2 mb-10">
+              The Ledger
+            </h2>
+          </Reveal>
+
+          <div className="border" style={{ borderColor: "#9C7A3C55" }}>
+            {[
+              ["Client &amp; Sales".replace("&amp;", "&"), ["Customer Relationship Management", "Sales Targets & Retention", "Client Interaction", "Emotional Intelligence"]],
+              ["Documentation & Compliance", ["Export Documentation", "Regulatory Compliance", "Stakeholder Coordination", "Records Management"]],
+              ["Core Strengths", ["Communication", "Critical Thinking", "Problem Solving", "Attention to Detail", "Teamwork"]],
+            ].map(([cat, items], i) => (
+              <div
+                key={cat}
+                className="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-5"
+                style={{ borderTop: i === 0 ? "none" : "1px solid #9C7A3C33" }}
+              >
+                <div className="sm:w-52 shrink-0" style={{ fontFamily: "IBM Plex Mono", fontSize: "11px", color: "#9C7A3C", letterSpacing: "0.05em" }}>
+                  {String(i + 1).padStart(2, "0")} — {cat}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {items.map((it) => (
+                    <span
+                      key={it}
+                      className="px-3 py-1 text-xs"
+                      style={{ background: "#F3EDDD", color: "#2B2620", fontFamily: "Inter", border: "1px solid #D8CDAE" }}
+                    >
+                      {it}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* EXPERIENCE — MANIFEST LOG */}
+      <section id="experience" className="py-20 px-6">
+        <div className="max-w-3xl mx-auto">
+          <Reveal>
+            <p style={{ fontFamily: "IBM Plex Mono", fontSize: "11px", color: "#A8362A", letterSpacing: "0.12em" }}>
+              CARGO MANIFEST — CAREER LOG
+            </p>
+            <h2 style={{ fontFamily: "Fraunces", fontSize: "34px", color: "#1E2A38" }} className="mt-2 mb-12">
+              Entries on Record
+            </h2>
+          </Reveal>
+
+          <LogEntry
+            num="01"
+            period="2025 — PRESENT"
+            role="Export & Documentation Officer"
+            org="Sapid Logistics Company · Apapa, Lagos"
+            bullets={[
+              "Manages and processes official export documentation in line with regulatory standards.",
+              "Coordinates with multiple stakeholders to ensure accurate, on-time shipments.",
+              "Maintains organized records with a strong focus on data accuracy.",
+            ]}
+          />
+          <LogEntry
+            num="02"
+            period="2018 — 2022"
+            role="Sales Representative"
+            org="Everyday Supermarket"
+            bullets={[
+              "Delivered excellent customer service by identifying needs and offering fitting solutions.",
+              "Built lasting client relationships that drove retention and referrals.",
+              "Consistently met and exceeded monthly and quarterly sales targets.",
+              "Handled sales transactions and cash register operations with accuracy.",
+            ]}
+            last
+          />
+        </div>
+      </section>
+
+      {/* EDUCATION + LANGUAGES */}
+      <section id="education" className="py-20 px-6" style={{ background: "#EBE3CC" }}>
+        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-6">
+          <Reveal>
+            <div className="p-8 h-full" style={{ background: "#F3EDDD", border: "1px solid #9C7A3C55" }}>
+              <GraduationCap size={20} color="#A8362A" />
+              <p style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#9C7A3C", marginTop: "12px" }}>2022</p>
+              <h3 style={{ fontFamily: "Fraunces", fontSize: "22px", color: "#1E2A38", marginTop: "4px" }}>
+                B.Sc. Psychology
+              </h3>
+              <p style={{ fontFamily: "Inter", fontSize: "13px", color: "#2B2620cc", marginTop: "4px" }}>
+                Imo State University
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="p-8 h-full" style={{ background: "#F3EDDD", border: "1px solid #9C7A3C55" }}>
+              <BadgeCheck size={20} color="#A8362A" />
+              <p style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#9C7A3C", marginTop: "12px" }}>CERTIFICATION</p>
+              <h3 style={{ fontFamily: "Fraunces", fontSize: "22px", color: "#1E2A38", marginTop: "4px" }}>
+                National Youth Service Corps
+              </h3>
+              <p style={{ fontFamily: "Inter", fontSize: "13px", color: "#2B2620cc", marginTop: "4px" }}>
+                Completed
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={200} className="sm:col-span-2">
+            <div className="p-8 flex items-center gap-6 flex-wrap" style={{ background: "#F3EDDD", border: "1px solid #9C7A3C55" }}>
+              <Languages size={20} color="#A8362A" />
+              <div className="flex gap-8">
+                <div>
+                  <div style={{ fontFamily: "Fraunces", fontSize: "18px", color: "#1E2A38" }}>English</div>
+                  <div style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#9C7A3C" }}>FLUENT</div>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "Fraunces", fontSize: "18px", color: "#1E2A38" }}>Igbo</div>
+                  <div style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#9C7A3C" }}>NATIVE</div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CONTACT — BILL OF LADING STYLE */}
+      <section id="contact" className="py-24 px-6">
+        <div className="max-w-2xl mx-auto">
+          <Reveal>
+            <div style={{ border: "2px solid #1E2A38", background: "#F3EDDD" }} className="p-8 sm:p-10 relative">
+              <div className="flex justify-between items-start mb-8" style={{ borderBottom: "1px dashed #9C7A3C", paddingBottom: "16px" }}>
+                <div>
+                  <p style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#9C7A3C", letterSpacing: "0.1em" }}>
+                    BILL OF CONTACT
+                  </p>
+                  <h2 style={{ fontFamily: "Fraunces", fontSize: "30px", color: "#1E2A38" }} className="mt-1">
+                    Let's Work Together
+                  </h2>
+                </div>
+                <div
+                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center text-center rotate-[8deg] shrink-0"
+                  style={{ borderColor: "#A8362A", color: "#A8362A" }}
+                >
+                  <span style={{ fontFamily: "IBM Plex Mono", fontSize: "8px" }}>OPEN<br />TO<br />WORK</span>
+                </div>
+              </div>
+
+              <p style={{ fontFamily: "Inter", fontSize: "14px", color: "#2B2620cc", lineHeight: 1.7 }} className="mb-8">
+                Open to roles in sales, export operations, and client-facing coordination.
+                Reach out and let's get the paperwork started.
+              </p>
+
+              <div className="space-y-4">
+                <a href="mailto:chifurumnaya20@gmail.com" className="flex items-center justify-between py-3 group" style={{ borderBottom: "1px solid #D8CDAE" }}>
+                  <span className="flex items-center gap-3" style={{ fontFamily: "Inter", fontSize: "14px", color: "#1E2A38" }}>
+                    <Mail size={16} color="#A8362A" /> chifurumnaya20@gmail.com
+                  </span>
+                  <ArrowUpRight size={16} color="#9C7A3C" />
+                </a>
+                <a href="tel:+2349032049210" className="flex items-center justify-between py-3 group" style={{ borderBottom: "1px solid #D8CDAE" }}>
+                  <span className="flex items-center gap-3" style={{ fontFamily: "Inter", fontSize: "14px", color: "#1E2A38" }}>
+                    <Phone size={16} color="#A8362A" /> +234 903 204 9210
+                  </span>
+                  <ArrowUpRight size={16} color="#9C7A3C" />
+                </a>
+                <div className="flex items-center gap-3 py-3">
+                  <MapPin size={16} color="#A8362A" />
+                  <span style={{ fontFamily: "Inter", fontSize: "14px", color: "#1E2A38" }}>Lagos, Nigeria</span>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <footer className="py-8 text-center" style={{ borderTop: "1px solid #D8CDAE" }}>
+        <p style={{ fontFamily: "IBM Plex Mono", fontSize: "10px", color: "#2B262066" }}>
+          © {new Date().getFullYear()} DURU-ALOY CHIFURUMANYA MARIA · DOCUMENTED WITH CARE
+        </p>
+      </footer>
+    </div>
+  );
+}
